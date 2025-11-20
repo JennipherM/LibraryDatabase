@@ -1,0 +1,10 @@
+C:\JennipherM\C#\OOP_ Class\LibraryDatabse\LibraryDatabse\bin\Debug\LibraryDatabse.exe.config
+C:\JennipherM\C#\OOP_ Class\LibraryDatabse\LibraryDatabse\bin\Debug\LibraryDatabse.exe
+C:\JennipherM\C#\OOP_ Class\LibraryDatabse\LibraryDatabse\bin\Debug\LibraryDatabse.pdb
+C:\JennipherM\C#\OOP_ Class\LibraryDatabse\LibraryDatabse\obj\Debug\LibraryDatabase.csproj.AssemblyReference.cache
+C:\JennipherM\C#\OOP_ Class\LibraryDatabse\LibraryDatabse\obj\Debug\LibraryDatabse.Form.resources
+C:\JennipherM\C#\OOP_ Class\LibraryDatabse\LibraryDatabse\obj\Debug\LibraryDatabse.Properties.Resources.resources
+C:\JennipherM\C#\OOP_ Class\LibraryDatabse\LibraryDatabse\obj\Debug\LibraryDatabase.csproj.GenerateResource.cache
+C:\JennipherM\C#\OOP_ Class\LibraryDatabse\LibraryDatabse\obj\Debug\LibraryDatabase.csproj.CoreCompileInputs.cache
+C:\JennipherM\C#\OOP_ Class\LibraryDatabse\LibraryDatabse\obj\Debug\LibraryDatabse.exe
+C:\JennipherM\C#\OOP_ Class\LibraryDatabse\LibraryDatabse\obj\Debug\LibraryDatabse.pdb
