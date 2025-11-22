@@ -77,30 +77,26 @@ namespace LibraryActivity
         private string origLanguage;
         private List<string> languages; 
 
-        public TranslatedBook(string Title, string Author, string Genre, string OrgLanguage) : base (Title, Author, Genre, false)
+        public TranslatedBook(string Title, string Author, string Genre, bool IsAvailable, string OrgLanguage) : base (Title, Author, Genre, false)
         {
             origLanguage = OrgLanguage;
             languages = new List<string>();
         }      
 
-        public void addTranslation(string language)
+        public void addTranslation(List<string> languageList)
         {
-            languages.Add(language);
+            languages = languageList;
         }
 
         public void showLanguages()
-        {          
-            if (languages.Count != 0)
-            {
-                Console.WriteLine("Available languages: ");
+        {
+            Console.WriteLine("Available languages: ");
 
-                foreach (string language in languages)
-                {
-                    Console.Write($"{language}, ");
-                }
-                return;
+            foreach (string language in languages)
+            {
+                Console.Write($"{language}, ");
             }
-            Console.WriteLine("No translations available");
+            return;
         }
     }
 
@@ -111,12 +107,12 @@ namespace LibraryActivity
         private string illustratorName;
         private bool isInteractive;
 
-        public ChildrensBook(string Title, string Author, string Genre, string AgeRange, bool HasIllustrations, bool interactive) : base(Title, Author, Genre, false)
+        public ChildrensBook(string Title, string Author, string Genre, bool IsAvailable, string AgeRange, bool HasIllustrations, bool interactive) : base(Title, Author, Genre, false)
         {
             ageRange = AgeRange;
             hasIllustrations = HasIllustrations;
             isInteractive = false;
-            illustratorName = "";
+            illustratorName = "N/A";
         }
 
         public void addIllustrator(string name)
@@ -137,17 +133,17 @@ namespace LibraryActivity
 
     class AudioBook : Book
     {
-        public double duration;
+        public string duration;
         public string narratorName;
         public string format;
         public string summary;
 
-        public AudioBook(string Title, string Author, string Genre, double Duration, string NarratorName, string Format) : base(Title, Author, Genre, false)
+        public AudioBook(string Title, string Author, string Genre, bool IsAvailable, string Duration, string NarratorName, string Format) : base(Title, Author, Genre, false)
         {
             duration = Duration;
             narratorName = NarratorName;
             format = Format;
-            summary = "";
+            summary = "N/A";
         }
 
         public void addSummary(string Summary)
@@ -158,7 +154,7 @@ namespace LibraryActivity
 
         public void displaySummary()
         {
-            if(summary == "")
+            if(summary == "N/A")
             {
                 Console.WriteLine("No summary available");
                 return;
