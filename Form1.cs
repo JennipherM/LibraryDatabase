@@ -8,6 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Data.SqlClient;
+using System.Net;
+using System.Xml.Linq;
 
 namespace LibraryDatabse
 {
@@ -20,14 +23,21 @@ namespace LibraryDatabse
         GroupBox[] groups;
 
         List<string> languages = new List<string>();
+        string connectionString;
 
+        bool tmp;
         bool illustrations;
         bool interactive;
-        string bookType; 
+        string bookType;
+
+        SqlConnection currConnection;
+        SqlCommand otherTblQuery = null;
+        string otherStatement = "";
 
         public Form()
         {
             InitializeComponent();
+            connectionString = @"Data Source = localhost; Initial Catalog = Books; User ID = LibraryUser; Password = LibraryLab123!; TrustServerCertificate = True";
         }
         private void generalSubmit_Click(object sender, EventArgs e)
         {
@@ -95,8 +105,12 @@ namespace LibraryDatabse
 
         private void groupSubmit_Click(object sender, EventArgs e)
         {
+            string lang = "";
+            int bookID;
             GroupBox visibleBox = null;
             groupLbl.Text = "";
+            
+           
 
             foreach (GroupBox item in groups)
             {
@@ -111,57 +125,109 @@ namespace LibraryDatabse
 
             if (visibleBox == availableGroup)
             {
+                
+
                 if (availableTB.Text == "")
                     groupLbl.Text = "Enter all fields";
                 else
                 {
-                    bool tmp = validateYN(availableTB.Text); //check if text is y or n
+                    tmp = validateYN(availableTB.Text); //check if text is y or n
 
                     if (tmp)
                     {
                         tmp = checkTrueFalse(availableTB.Text); // returns true (y) / false (n)
 
+                        currConnection = new SqlConnection(connectionString);
+                        currConnection.Open();
+
                         switch (bookType)
                         {
                             case "Regular":
                                 Book regularBook = new Book(title, author, genre, tmp);
-                                msgLbl.Text = "Regular book created!";
+                                bookInsert();
                                 break;
 
                             case "Translated":
                                 TranslatedBook translateBook = new TranslatedBook(title, author, genre, tmp, ogLanguageTB.Text);
 
                                 translateBook.addTranslation(languages);
-                                msgLbl.Text = "Translated book created!";
+
+                                foreach (string language in languages)
+                                {
+                                    lang += language + ", ";
+                                }
 
                                 languages.Clear();
+
+                                bookInsert(); //inserts new record into Books tbl
+
+                                bookID = getBookID(); //gets ID of book just entered into Books
+
+                                otherStatement = "INSERT INTO dbo.TranslatedBooks(BookID, OriginalLanguage, AvailableLanguages) VALUES (@BookID, @OriginalLanguage, @AvailableLanguages)";
+
+                                otherTblQuery = new SqlCommand(otherStatement, currConnection);
+
+                                otherTblQuery.Parameters.AddWithValue("@BookID", bookID);
+                                otherTblQuery.Parameters.AddWithValue("@OriginalLanguage", ogLanguageTB.Text);
+                                otherTblQuery.Parameters.AddWithValue("@AvailableLanguages", lang);
+
+                                otherTblQuery.ExecuteNonQuery();
                                 break;
 
                             case "Audio":
+                               
                                 AudioBook audioBook = new AudioBook(title, author, genre, tmp, durationTB.Text, nameTB.Text, formatTB.Text);
-
-                                msgLbl.Text = "Audio book created!";
 
                                 if(summaryTB.Text != "")
                                 {
                                     audioBook.addSummary(summaryTB.Text);
                                 }
+
+                                bookInsert();
+                                bookID = getBookID();
+
+                                otherStatement = "INSERT INTO dbo.AudioBooks(BookID, Duration, NarratorName, FormatType, Summary) VALUES (@BookID, @Duration, @NarratorName, @FormatType, @Summary)";
+
+                                otherTblQuery = new SqlCommand(otherStatement, currConnection);
+
+                                otherTblQuery.Parameters.AddWithValue("@BookID", bookID);
+                                otherTblQuery.Parameters.AddWithValue("@Duration", durationTB.Text);
+                                otherTblQuery.Parameters.AddWithValue("@NarratorName", nameTB.Text);
+                                otherTblQuery.Parameters.AddWithValue("@FormatType", formatTB.Text);
+                                otherTblQuery.Parameters.AddWithValue("@Summary", audioBook.summary);
+
+                                otherTblQuery.ExecuteNonQuery();
                                 summaryGroup.Visible = false;
                                 break;
 
                             case "Childrens":
+                                ChildrensBook childBook = new ChildrensBook(title, author, genre, tmp, (startAgeTB.Text + " - " + endAgeTB.Text), illustrations, interactive);
 
-                                ChildrensBook childBook = new ChildrensBook(title, author, genre, tmp,(startAgeTB.Text + " - " + endAgeTB.Text), illustrations, interactive);
-
-                                if(illustNameTB.Text != "")
+                                if (illustNameTB.Text != "")
                                 {
                                     childBook.addIllustrator(illustNameTB.Text);
                                 }
 
-                                msgLbl.Text = "Childrens book created!";
+                                bookInsert();
+                                bookID = getBookID();
+
+                                otherStatement = "INSERT INTO dbo.ChildrensBooks(BookID, AgeRange, Illustrations, IllustratorName, Interactive) VALUES (@BookID, @AgeRange, @Illustrations, @IllustratorName, @Interactive)";
+
+                                otherTblQuery = new SqlCommand(otherStatement, currConnection);
+
+                                otherTblQuery.Parameters.AddWithValue("@BookID", bookID);
+                                otherTblQuery.Parameters.AddWithValue("@AgeRange", startAgeTB.Text + " - " + endAgeTB.Text);
+                                otherTblQuery.Parameters.AddWithValue("@Illustrations", illustrations);
+                                otherTblQuery.Parameters.AddWithValue("@IllustratorName", childBook.illustratorName);
+                                otherTblQuery.Parameters.AddWithValue("@Interactive", interactive);
+
+                                otherTblQuery.ExecuteNonQuery();
                                 break;
                         }
+   
+                        msgLbl.Text = $"{bookType} book created!";
                         cancelBtn_Click(availableGroup, e);
+                        currConnection.Close();
                     }
                 }              
             }
@@ -255,6 +321,7 @@ namespace LibraryDatabse
                 languages.Add(newLanguageTB.Text);
 
                 groupLbl.Text = $"{newLanguageTB.Text} added to list!";
+                newLanguageTB.Text = "";
                 groupSubmit.Enabled = true;
             }
         }
@@ -264,6 +331,36 @@ namespace LibraryDatabse
 
         }
 
+        private void bookInsert()
+        {
+            SqlCommand bookTblQuery = null;
+
+            // only insert into Book table
+            string bookStatement = "INSERT INTO dbo.Books (Title, Author, Genre, Type, Available) VALUES (@Title, @Author, @Genre, @Type, @Available)";
+
+            bookTblQuery = new SqlCommand(bookStatement, currConnection);
+
+            bookTblQuery.Parameters.AddWithValue("@Title", title);
+            bookTblQuery.Parameters.AddWithValue("@Author", author);
+            bookTblQuery.Parameters.AddWithValue("@Genre", genre);
+            bookTblQuery.Parameters.AddWithValue("@Type", bookType);
+            bookTblQuery.Parameters.AddWithValue("@Available", tmp);
+
+            bookTblQuery.ExecuteNonQuery();
+        }
+
+        private int getBookID()
+        {
+            //to connect tables by bookID (will insert bookid in other tables instead of auto increment)
+            otherStatement = "SELECT BookID FROM Books WHERE Title = @Title AND Author = @Author";
+
+            otherTblQuery = new SqlCommand(otherStatement, currConnection);
+            otherTblQuery.Parameters.AddWithValue("@Title", title);
+            otherTblQuery.Parameters.AddWithValue("@Author", author);
+
+            //ExecuteScalar() returns a value from db
+            return Convert.ToInt16(otherTblQuery.ExecuteScalar());
+        }
         private void cancelBtn_Click(object sender, EventArgs e)
         {
             regularRadio.Checked = false;

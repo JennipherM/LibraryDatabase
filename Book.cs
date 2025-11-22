@@ -102,10 +102,10 @@ namespace LibraryActivity
 
     class ChildrensBook : Book
     {
-        private string ageRange;
-        private bool hasIllustrations;
-        private string illustratorName;
-        private bool isInteractive;
+        public string ageRange;
+        public bool hasIllustrations;
+        public string illustratorName;
+        public bool isInteractive;
 
         public ChildrensBook(string Title, string Author, string Genre, bool IsAvailable, string AgeRange, bool HasIllustrations, bool interactive) : base(Title, Author, Genre, false)
         {
