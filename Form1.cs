@@ -21,15 +21,14 @@ namespace LibraryDatabse
         string genre;
 
         GroupBox[] groups;
-
         List<string> languages = new List<string>();
-        string connectionString;
-
+        
         bool tmp;
         bool illustrations;
         bool interactive;
         string bookType;
 
+        string connectionString;
         SqlConnection currConnection;
         SqlCommand otherTblQuery = null;
         string otherStatement = "";
@@ -125,7 +124,7 @@ namespace LibraryDatabse
 
             if (visibleBox == availableGroup)
             {
-                
+
 
                 if (availableTB.Text == "")
                     groupLbl.Text = "Enter all fields";
@@ -175,10 +174,10 @@ namespace LibraryDatabse
                                 break;
 
                             case "Audio":
-                               
+
                                 AudioBook audioBook = new AudioBook(title, author, genre, tmp, durationTB.Text, nameTB.Text, formatTB.Text);
 
-                                if(summaryTB.Text != "")
+                                if (summaryTB.Text != "")
                                 {
                                     audioBook.addSummary(summaryTB.Text);
                                 }
@@ -224,12 +223,12 @@ namespace LibraryDatabse
                                 otherTblQuery.ExecuteNonQuery();
                                 break;
                         }
-   
+
                         msgLbl.Text = $"{bookType} book created!";
                         cancelBtn_Click(availableGroup, e);
                         currConnection.Close();
                     }
-                }              
+                }
             }
 
             // -------- Translated Book --------
@@ -246,24 +245,34 @@ namespace LibraryDatabse
                     groupVisibility(languageGroup);
                     changeBtnLocation(340, 529, 263, 529);
                     groupSubmit.Enabled = false;
-                }               
+                }
             }
             else if (visibleBox == languageGroup)
             {
-                groupVisibility(availableGroup);               
+                groupVisibility(availableGroup);
             }
 
             // -------- Audio Book --------
             else if (visibleBox == audioGroup)
             {
                 if (durationTB.Text == "" || nameTB.Text == "" || formatTB.Text == "")
-                    groupLbl.Text = "Enter all fields";
-                else
                 {
-                    groupVisibility(summaryGroup);
-                    noSumBtn.Visible = true;
-                    changeBtnLocation(336, 494, 259, 494);
+                    groupLbl.Text = "Enter all fields";
+                    return;
                 }
+                try
+                {
+                    Convert.ToSingle(durationTB.Text);
+                }
+                catch
+                {
+                    groupLbl.Text = "Duration must be a number";
+                    return;
+                }
+
+                groupVisibility(summaryGroup);
+                noSumBtn.Visible = true;
+                changeBtnLocation(336, 494, 259, 494);
             }
 
             else if (visibleBox == summaryGroup)
@@ -275,30 +284,57 @@ namespace LibraryDatabse
             }
 
             // -------- Childrens Book --------
+
             else if (visibleBox == childrensGroup)
             {
+                int start;
+                int end;
+
                 if (startAgeTB.Text == "" || endAgeTB.Text == "" || illustrationsTB.Text == "" || interactiveTB.Text == "")
-                    msgLbl.Text = "Fill summary field";
-                else
                 {
-                    // check if input is y or n
-                    illustrations = validateYN(illustrationsTB.Text);
-                    interactive = validateYN(interactiveTB.Text);
-
-                    if (illustrations && interactive)
-                    {
-                        illustrations = checkTrueFalse(illustrationsTB.Text); // returns true(y) / false(n)
-                        interactive = checkTrueFalse(interactiveTB.Text);
-
-                        if (illustrations)
-                        {
-                            groupVisibility(illustratorGroup);
-                            changeBtnLocation(336, 494, 259, 494);
-                        }
-                        else
-                            groupVisibility(availableGroup);
-                    }
+                    msgLbl.Text = "Fill summary field";
+                    return;
                 }
+                try
+                {
+                    start = Convert.ToInt32(startAgeTB.Text);
+                    end = Convert.ToInt32(endAgeTB.Text);
+                }
+                catch
+                {
+                    groupLbl.Text = "Start and end age must be a number";
+                    return;
+                }
+
+                if (start > 17)
+                {
+                    groupLbl.Text = "Childrens books must be age appropriate for children under 18";
+                    return ;
+                }
+                else if (start >end || start == end)
+                {
+                    groupLbl.Text = "Start age must be less than end age";
+                    return;
+                }
+
+                // check if input is y or n
+                illustrations = validateYN(illustrationsTB.Text);
+                interactive = validateYN(interactiveTB.Text);
+
+                if (illustrations && interactive)
+                {
+                    illustrations = checkTrueFalse(illustrationsTB.Text); // returns true(y) / false(n)
+                    interactive = checkTrueFalse(interactiveTB.Text);
+
+                    if (illustrations)
+                    {
+                        groupVisibility(illustratorGroup);
+                        changeBtnLocation(336, 494, 259, 494);
+                    }
+                    else
+                        groupVisibility(availableGroup);
+                }
+
             }
 
             else if (visibleBox == illustratorGroup)
@@ -328,7 +364,39 @@ namespace LibraryDatabse
 
         private void viewBtn_Click(object sender, EventArgs e)
         {
+            string availability;
+            BookList.Items.Clear();
 
+            currConnection = new SqlConnection(connectionString);
+            currConnection.Open();
+
+            string sqlStatement = "SELECT * FROM dbo.Books";
+
+            SqlCommand myQuery = new SqlCommand(sqlStatement, currConnection);
+
+            SqlDataReader myReader = myQuery.ExecuteReader();
+
+            while (myReader.Read())
+            {
+                BookList.Items.Add("Title: " + myReader["Title"]);
+                BookList.Items.Add("Author: " + myReader["Author"]);
+                BookList.Items.Add("Genre: " + myReader["Genre"]);
+                BookList.Items.Add("Type: " + myReader["Type"]);
+
+                if (Convert.ToInt16(myReader["Available"]) == 0)
+                {
+                    availability = "False";
+                }
+                else
+                {
+                    availability = "True";
+                }
+
+                BookList.Items.Add("Available: " + availability);
+                BookList.Items.Add("-------------------------");
+            }
+
+            currConnection.Close();
         }
 
         private void bookInsert()

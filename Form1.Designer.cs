@@ -79,9 +79,9 @@
             this.viewBtn = new System.Windows.Forms.Button();
             this.noSumBtn = new System.Windows.Forms.Button();
             this.languageGroup = new System.Windows.Forms.GroupBox();
+            this.addBtn = new System.Windows.Forms.Button();
             this.newLanguageTB = new System.Windows.Forms.TextBox();
             this.label19 = new System.Windows.Forms.Label();
-            this.addBtn = new System.Windows.Forms.Button();
             this.availableGroup.SuspendLayout();
             this.translateGroup.SuspendLayout();
             this.audioGroup.SuspendLayout();
@@ -350,9 +350,9 @@
             this.label10.Font = new System.Drawing.Font("Microsoft YaHei", 10F);
             this.label10.Location = new System.Drawing.Point(39, 31);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(72, 20);
+            this.label10.Size = new System.Drawing.Size(147, 20);
             this.label10.TabIndex = 20;
-            this.label10.Text = "Duration:";
+            this.label10.Text = "Duration in minutes:";
             // 
             // summaryGroup
             // 
@@ -540,7 +540,7 @@
             // 
             this.groupLbl.AutoSize = true;
             this.groupLbl.Font = new System.Drawing.Font("Microsoft YaHei", 10F, System.Drawing.FontStyle.Bold);
-            this.groupLbl.Location = new System.Drawing.Point(288, 375);
+            this.groupLbl.Location = new System.Drawing.Point(68, 379);
             this.groupLbl.Name = "groupLbl";
             this.groupLbl.Size = new System.Drawing.Size(0, 19);
             this.groupLbl.TabIndex = 28;
@@ -611,6 +611,17 @@
             this.languageGroup.Text = "Add Languages";
             this.languageGroup.Visible = false;
             // 
+            // addBtn
+            // 
+            this.addBtn.Font = new System.Drawing.Font("Microsoft YaHei", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.addBtn.Location = new System.Drawing.Point(259, 61);
+            this.addBtn.Name = "addBtn";
+            this.addBtn.Size = new System.Drawing.Size(64, 31);
+            this.addBtn.TabIndex = 31;
+            this.addBtn.Text = "Add";
+            this.addBtn.UseVisualStyleBackColor = true;
+            this.addBtn.Click += new System.EventHandler(this.translateAdd_Click);
+            // 
             // newLanguageTB
             // 
             this.newLanguageTB.Location = new System.Drawing.Point(176, 29);
@@ -628,29 +639,18 @@
             this.label19.TabIndex = 16;
             this.label19.Text = "Available Languages:";
             // 
-            // addBtn
-            // 
-            this.addBtn.Font = new System.Drawing.Font("Microsoft YaHei", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.addBtn.Location = new System.Drawing.Point(259, 61);
-            this.addBtn.Name = "addBtn";
-            this.addBtn.Size = new System.Drawing.Size(64, 31);
-            this.addBtn.TabIndex = 31;
-            this.addBtn.Text = "Add";
-            this.addBtn.UseVisualStyleBackColor = true;
-            this.addBtn.Click += new System.EventHandler(this.translateAdd_Click);
-            // 
             // Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
             this.ClientSize = new System.Drawing.Size(917, 646);
+            this.Controls.Add(this.audioGroup);
             this.Controls.Add(this.languageGroup);
             this.Controls.Add(this.noSumBtn);
             this.Controls.Add(this.viewBtn);
             this.Controls.Add(this.childrensGroup);
             this.Controls.Add(this.translateGroup);
-            this.Controls.Add(this.audioGroup);
             this.Controls.Add(this.cancelBtn);
             this.Controls.Add(this.groupLbl);
             this.Controls.Add(this.BookList);
